@@ -153,7 +153,7 @@ graph LR
 - 依存は`共有部分 → features → app`の**単方向**のみ。逆方向（例: 共有部分がfeaturesに依存）は禁止
 - `features/local-game`と`features/online-game`は**互いに直接importしない**（別のfeatureの実装詳細を参照しない。組み合わせが必要な場合は`app/`層で合成する）
 - `game-engine/`は全featureが依存できる共有カーネルだが、React / Next.js / Firebaseには一切依存しない純粋なTypeScriptとし、Vitestで単体テストしやすくする
-- これらの制約はレビューだけでは弱いため、[eslint.config.mjs](../eslint.config.mjs)に`import/no-restricted-paths`（または同等の`eslint-plugin-boundaries`）を追加し、CIで機械的に強制する
+- これらの制約はレビューだけでは弱いため、[eslint.config.mjs](../eslint.config.mjs)に`import/no-restricted-paths`（または同等の`eslint-plugin-boundaries`）を追加予定とし、CIで機械的に強制する
 
 ## 6. データモデル（型定義）
 
@@ -243,30 +243,38 @@ rooms/{roomId}/actions/{actionId}  // ゲストの意図（ホストが検証し
 ## 8. Security Rules方針（概要）
 
 ```
-// 手札は本人のみ読める。書き込みはホストまたは本人のみ
+// 手札は本人のみ読める。書き込みはホストのみ
 match /rooms/{roomId}/hands/{uid} {
   allow read: if request.auth.uid == uid;
-  allow write: if request.auth.uid == get(/databases/$(database)/documents/rooms/$(roomId)).data.hostUid
-                || request.auth.uid == uid;
+  allow write: if request.auth.uid == get(/databases/$(database)/documents/rooms/$(roomId)).data.hostUid;
 }
 
 // ルーム本体（場札・手番等の公開情報）は参加者全員が読める。書き込みはホストのみ
 match /rooms/{roomId} {
-  allow read: if request.auth != null;
-  allow write: if request.auth.uid == resource.data.hostUid;
+  allow read: if request.auth != null
+              && (request.auth.uid == resource.data.hostUid
+                  || exists(/databases/$(database)/documents/rooms/$(roomId)/players/$(request.auth.uid)));
+  allow create: if request.auth != null
+                && request.auth.uid == request.resource.data.hostUid;
+  allow update, delete: if request.auth.uid == resource.data.hostUid;
 }
 
 // プレイヤー一覧は全員read可。自分の行は自分で、それ以外はホストが書き込み
 match /rooms/{roomId}/players/{uid} {
-  allow read: if request.auth != null;
-  allow write: if request.auth.uid == uid
-                || request.auth.uid == get(/databases/$(database)/documents/rooms/$(roomId)).data.hostUid;
+  allow read: if request.auth != null
+              && (request.auth.uid == get(/databases/$(database)/documents/rooms/$(roomId)).data.hostUid
+                  || exists(/databases/$(database)/documents/rooms/$(roomId)/players/$(request.auth.uid)));
+  allow create, update: if request.auth.uid == uid
+                        || request.auth.uid == get(/databases/$(database)/documents/rooms/$(roomId)).data.hostUid;
+  allow delete: if request.auth.uid == get(/databases/$(database)/documents/rooms/$(roomId)).data.hostUid;
 }
 
 // アクション（意図）は本人が作成、ホストが更新
 match /rooms/{roomId}/actions/{actionId} {
   allow create: if request.auth.uid == request.resource.data.uid;
-  allow read: if request.auth != null;
+  allow read: if request.auth != null
+              && (request.auth.uid == get(/databases/$(database)/documents/rooms/$(roomId)).data.hostUid
+                  || exists(/databases/$(database)/documents/rooms/$(roomId)/players/$(request.auth.uid)));
   allow update: if request.auth.uid == get(/databases/$(database)/documents/rooms/$(roomId)).data.hostUid;
 }
 ```
