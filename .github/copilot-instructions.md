@@ -22,21 +22,21 @@
 ### ✅ 許可する粒度
 
 #### 粒度レベル1（推奨・最小単位）
-- 1つの feature、component、lib ファイル追加のみ
+- 1つの feature、component、lib に対する追加・修正・削除のみ
 - 関連するテストは同一 PR に含める
 - 最大 200行程度
 
 #### 粒度レベル2（許可・複数ファイル）
 - 同一 feature 内の複数ファイルのみ（例：`src/features/game-setup/` 配下）
 - 最大 400行程度
-- feature 間の依存参照は禁止
+- feature 間の直接importなど、直接的な依存参照は禁止
 
 ### ❌ 禁止する粒度
 
 以下のパターンは **絶対に 1 つの PR に混ぜない**：
 
-- 複数 feature を混ぜる（例：`features/game-setup/` と `features/player-management/` を同時）
-- `app/` 層の変更と `features/`、`lib/` の変更を混ぜる
+- 複数 feature を混ぜる（例：`src/features/game-setup/` と `src/features/player-management/` を同時）
+- `src/app/` 層の変更と `src/features/`、`src/lib/` の変更を混ぜる
 - 400行を超える変更
 - 分割可能なものを無理に 1 つの PR に纏める
 
