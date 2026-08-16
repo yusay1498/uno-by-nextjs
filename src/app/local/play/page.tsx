@@ -1,16 +1,16 @@
 import Link from "next/link";
-import { LocalGameSetupForm } from "@/features/local-game/components/LocalGameSetupForm";
+import { LocalGamePlayEntry } from "@/features/local-game/components/LocalGamePlayEntry";
 
-export default function LocalSetupPage() {
+export default function LocalPlayPage() {
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-12">
       <header className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight">ローカル対戦セットアップ</h1>
+        <h1 className="text-2xl font-bold tracking-tight">ローカル対戦開始準備</h1>
         <p className="text-sm text-zinc-600 dark:text-zinc-300">
-          人数とハウスルールを決めて、ローカル対戦の開始準備を行います。
+          セットアップ結果を確認し、今後のプレイ画面実装へ繋げる導線です。
         </p>
       </header>
-      <LocalGameSetupForm />
+      <LocalGamePlayEntry />
       <Link
         href="/"
         className="w-fit rounded-md border border-zinc-300 px-4 py-2 text-sm hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-900"
