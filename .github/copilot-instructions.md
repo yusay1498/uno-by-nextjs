@@ -30,11 +30,11 @@
   - `src/game-engine/*`: 全featureが依存する共有ドメインロジックを配置する
   - `src/components/`, `src/lib/`: feature横断で再利用する共有UI・ライブラリを配置する
 - **依存関係は単方向** に保つこと
-  - 共有ルール（`components/ hooks/ lib/ stores/ types/ utils/ game-engine/`）→ `features/*` → `app/` の順のみ許可する
+  - 共有ルール（`src/components/ src/hooks/ src/lib/ src/stores/ src/types/ src/utils/ src/game-engine/`）→ `src/features/*` → `src/app/` の順のみ許可する
   - 逆参照（例: 共有部分がfeatureへ依存、featureが`app/`へ依存）は禁止する
 - **feature間の直参照を禁止** すること
-  - `features/local-game` と `features/online-game` など、feature同士で直接importしない
-  - 連携が必要な場合は `lib/` の共有ロジック、または `hooks/` のinterface経由で扱う
+  - `src/features/local-game` と `src/features/online-game` など、feature同士で直接importしない
+  - 連携が必要な場合は `src/lib/` の共有ロジック、または `src/hooks/` のinterface経由で扱う
 - 参考: `docs/design.md` の「## 4. 全体アーキテクチャ」「## 5. ディレクトリ構成（Feature-Basedアーキテクチャ）」
 
 ### Next.js / React 実装制約
@@ -49,7 +49,7 @@
 - ゲーム状態管理は **ホストブラウザが権威** の原則を守り、クライアント駆動の進行モデルを維持すること
 
 ### 実装判断ルール
-- 不確実な場合は **必ず `next/dist/docs` を参照** し、汎用的な知識だけで判断しないこと
+- 不確実な場合は **必ず `node_modules/next/dist/docs/` を参照** し、汎用的な知識だけで判断しないこと
 - Next.js 公式ドキュメントも併用して確認すること: https://nextjs.org/docs/app
 
 ## コードレビュー
@@ -75,7 +75,7 @@
 
 ### アーキテクチャレビュー観点
 1. **依存グラフ**
-   - 依存グラフが単方向（共有 → features → app）を保っているか確認する
+   - 依存グラフが単方向（`src/`直下の共有 → `src/features` → `src/app`）を保っているか確認する
 2. **feature境界**
    - Feature間の直参照がなく、共有ルールまたはinterface経由で疎結合が保たれているか確認する
 3. **Firestore購読型設計**
