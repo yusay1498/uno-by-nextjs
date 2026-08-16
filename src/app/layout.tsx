@@ -6,7 +6,11 @@ export const metadata: Metadata = {
   description: "ローカル対戦とオンライン対戦に対応したUNOアプリ",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="ja" className="h-full antialiased">
       <body className="min-h-full flex flex-col">{children}</body>
