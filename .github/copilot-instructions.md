@@ -22,6 +22,36 @@
   - 変更内容
   - テスト（必要に応じて）
 
+## ✅ 必須プロトコル
+
+### アーキテクチャ原則
+- **Feature-Based構造** を厳守すること
+  - `src/features/*`: ユースケースごとの機能実装を配置する
+  - `src/game-engine/*`: 全featureが依存する共有ドメインロジックを配置する
+  - `src/components/`, `src/lib/`: feature横断で再利用する共有UI・ライブラリを配置する
+- **依存関係は単方向** に保つこと
+  - 共有ルール（`src/components/ src/hooks/ src/lib/ src/stores/ src/types/ src/utils/ src/game-engine/`）→ `src/features/*` → `src/app/` の順のみ許可する
+  - 逆参照（例: 共有部分がfeatureへ依存、featureが`app/`へ依存）は禁止する
+- **feature間の直参照を禁止** すること
+  - `src/features/local-game` と `src/features/online-game` など、feature同士で直接importしない
+  - 連携が必要な場合は `src/lib/` の共有ロジック、または `src/hooks/` のinterface経由で扱う
+- 参考: `docs/design.md` の「## 4. 全体アーキテクチャ」「## 5. ディレクトリ構成（Feature-Basedアーキテクチャ）」
+
+### Next.js / React 実装制約
+- RSC（React Server Component）と Client Components の責務分離を厳密に行うこと
+- `"use client"` は最小単位に限定し、上位コンポーネントやレイアウトで濫用しないこと
+- `any` 型は禁止し、TypeScript strict モードで成立する実装を維持すること
+- Tailwind CSS v4 を使用し、スタイル定義は `@import "tailwindcss"` 形式を前提とすること
+
+### プラットフォーム特性
+- サーバー常駐は不可であり、静的export + GitHub Pages 前提の構成を崩さないこと
+- Firebase Firestore への依存を前提とし、オンライン同期は購読型（`onSnapshot`）で設計すること
+- ゲーム状態管理は **ホストブラウザが権威** の原則を守り、クライアント駆動の進行モデルを維持すること
+
+### 実装判断ルール
+- 不確実な場合は **必ず `node_modules/next/dist/docs/` を参照** し、汎用的な知識だけで判断しないこと
+- Next.js 公式ドキュメントも併用して確認すること: https://nextjs.org/docs/app
+
 ## コードレビュー
 - レビューコメントは日本語で、丁寧な表現（です・ます調）を使うこと
 - 問題点だけでなく、改善案も具体的に提示すること
@@ -43,7 +73,26 @@
 6. **スタイル/デザインシステム**
    - スコープ漏れ、命名規約、トークン化、ダークモード、レスポンシブ/コンテナクエリ
 
-## 参考ソースの提示
+### アーキテクチャレビュー観点
+1. **依存グラフ**
+   - 依存グラフが単方向（`src/`直下の共有 → `src/features` → `src/app`）を保っているか確認する
+2. **feature境界**
+   - Feature間の直参照がなく、共有ルールまたはinterface経由で疎結合が保たれているか確認する
+3. **Firestore購読型設計**
+   - Firestore の購読型同期設計が維持され、責務が適切に分離されているか確認する
+4. **ホストブラウザ権威**
+   - ホストブラウザがゲーム進行の権威となる原則が守られているか確認する
+
+## 📋 ファイル生成時チェックリスト
+- [ ] 新規ファイルが `src/features/`, `src/game-engine/`, `src/components/`, `src/lib/` の適切な場所に配置されている
+- [ ] feature 間の依存関係を確認し、単方向 + 共有ルール経由のみになっている
+- [ ] RSC / Client Components の使い分けが正しい
+- [ ] TypeScript strict でコンパイル可能
+- [ ] Tailwind v4 書法で統一されている
+- [ ] 静的ビルド（`next build --experimental-app`）で成功する
+- [ ] `docs/design.md` の設計原則に違反していない
+
+## 参考
 - 回答する際は、関連する公式ドキュメントや参考になるURLを必ず末尾に記載すること
 - ソースは以下の形式で記載すること：
 
