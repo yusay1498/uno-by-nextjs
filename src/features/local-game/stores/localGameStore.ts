@@ -1,3 +1,5 @@
+"use client";
+
 import { create } from "zustand";
 
 export const LOCAL_PLAYER_COUNT = {
@@ -31,6 +33,17 @@ export const defaultLocalGameSetup: LocalGameSetup = {
 
 export const useLocalGameStore = create<LocalGameState>((set) => ({
   setup: null,
-  initializeSetup: (setup) => set({ setup }),
+  initializeSetup: (setup) =>
+    set({
+      setup: {
+        ...setup,
+        playerCount: Number.isFinite(setup.playerCount)
+          ? Math.min(
+              LOCAL_PLAYER_COUNT.max,
+              Math.max(LOCAL_PLAYER_COUNT.min, Math.trunc(setup.playerCount)),
+            )
+          : defaultLocalGameSetup.playerCount,
+      },
+    }),
   resetSetup: () => set({ setup: null }),
 }));
