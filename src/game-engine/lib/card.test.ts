@@ -60,4 +60,15 @@ describe("dealInitialHands", () => {
       "Player UIDs must be unique.",
     );
   });
+
+  test.each([0.5, Number.NaN, Number.POSITIVE_INFINITY, 0, -1])(
+    "無効な handSize=%p は拒否する",
+    (handSize) => {
+      const deck = createDeck();
+
+      expect(() => dealInitialHands(["p1", "p2"], deck, handSize)).toThrow(
+        "Hand size must be a positive integer.",
+      );
+    },
+  );
 });

@@ -73,8 +73,8 @@ export function dealInitialHands(
     throw new Error("Player UIDs must be unique.");
   }
 
-  if (handSize <= 0) {
-    throw new Error("Hand size must be positive.");
+  if (!Number.isInteger(handSize) || handSize <= 0) {
+    throw new Error("Hand size must be a positive integer.");
   }
 
   const requiredCards = playerUids.length * handSize;
