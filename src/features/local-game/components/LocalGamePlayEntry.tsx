@@ -57,6 +57,7 @@ export function LocalGamePlayEntry() {
   }, [session]);
   const currentHand = currentPlayer ? session?.hands[currentPlayer.uid] ?? [] : [];
   const isHandVisible = revealedPlayerUid === currentPlayer?.uid;
+  const revealedHand = isHandVisible ? currentHand : [];
   const handPanelId = currentPlayer ? `${currentPlayer.uid}-hand-panel` : undefined;
 
   useEffect(() => {
@@ -146,7 +147,7 @@ export function LocalGamePlayEntry() {
         <div id={handPanelId} aria-live="polite">
           {isHandVisible ? (
             <ul className="flex flex-wrap gap-2" aria-label={`${currentPlayer.displayName}の手札`}>
-              {currentHand.map((card) => (
+              {revealedHand.map((card) => (
                 <li
                   key={card.id}
                   className="rounded-full border border-zinc-300 px-3 py-1 text-sm dark:border-zinc-700"
