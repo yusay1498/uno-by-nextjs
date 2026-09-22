@@ -136,4 +136,10 @@ describe("createInitialGameSession", () => {
       }),
     ).toThrow("Opening discard card is unavailable.");
   });
+
+  test("プレイヤーが 0 人の場合は例外を投げる", () => {
+    expect(() =>
+      createInitialGameSession([], defaultHouseRules),
+    ).toThrow("At least one player is required.");
+  });
 });

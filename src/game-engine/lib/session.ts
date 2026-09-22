@@ -95,6 +95,10 @@ export function createInitialGameSession(
   houseRules: HouseRules,
   options: CreateInitialGameSessionOptions = {},
 ): InitialGameSession {
+  if (playerSeeds.length === 0) {
+    throw new Error("At least one player is required.");
+  }
+
   const deck = options.deck ?? shuffleDeck(createDeck(), options.random);
   const playerUids = playerSeeds.map((player) => player.uid);
   const { hands, remainingDeck } = dealInitialHands(playerUids, deck);
