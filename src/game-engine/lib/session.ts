@@ -70,7 +70,10 @@ const createOpeningTurnState = (
       break;
     case "reverse":
       direction = -1;
-      currentPlayerIndex = getNextPlayerIndex(0, direction, players.length);
+      currentPlayerIndex =
+        players.length === 2
+          ? 0
+          : getNextPlayerIndex(0, direction, players.length);
       break;
     case "drawTwo":
       currentPlayerIndex = getNextPlayerIndex(0, direction, players.length);

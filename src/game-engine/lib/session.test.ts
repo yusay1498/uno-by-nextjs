@@ -10,6 +10,7 @@ const playerSeeds: readonly SessionPlayerSeed[] = [
   { uid: "player-2", displayName: "プレイヤー 2", seatIndex: 1 },
   { uid: "player-3", displayName: "プレイヤー 3", seatIndex: 2 },
 ] as const;
+const twoPlayerSeeds = playerSeeds.slice(0, 2);
 
 const defaultHouseRules = {
   stacking: false,
@@ -32,7 +33,9 @@ const createDeckWithOpeningDiscard = (cardId: string, playerCount = 3) => {
 
 describe("createInitialGameSession", () => {
   test("プレイヤー情報と初期配札済みセッションを生成する", () => {
-    const session = createInitialGameSession(playerSeeds, defaultHouseRules);
+    const session = createInitialGameSession(playerSeeds, defaultHouseRules, {
+      deck: createDeckWithOpeningDiscard("red-1-0"),
+    });
 
     expect(session.state.status).toBe("playing");
     expect(session.state.players).toHaveLength(3);
@@ -93,6 +96,16 @@ describe("createInitialGameSession", () => {
     });
 
     expect(session.state.currentTurnUid).toBe("player-3");
+    expect(session.state.direction).toBe(-1);
+    expect(session.state.pendingDrawCount).toBe(0);
+  });
+
+  test("2人対戦で開始時の場札が reverse の場合はスキップ相当で最初のプレイヤーが続けて手番になる", () => {
+    const session = createInitialGameSession(twoPlayerSeeds, defaultHouseRules, {
+      deck: createDeckWithOpeningDiscard("red-reverse-0", 2),
+    });
+
+    expect(session.state.currentTurnUid).toBe("player-1");
     expect(session.state.direction).toBe(-1);
     expect(session.state.pendingDrawCount).toBe(0);
   });
