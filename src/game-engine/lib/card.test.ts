@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { createDeck, dealInitialHands, shuffleDeck } from "@/game-engine/lib/card";
+import { createDeck, dealInitialHands, shuffleDeck } from "./card";
 
 describe("createDeck", () => {
   test("標準UNOデッキ 108 枚を生成する", () => {

@@ -5,7 +5,7 @@ import {
   type CardValue,
   numberCardValues,
   wildCardValues,
-} from "@/game-engine/types/game";
+} from "../types/game";
 
 const INITIAL_HAND_SIZE = 7;
 const WILD_CARD_COPIES = 4;
