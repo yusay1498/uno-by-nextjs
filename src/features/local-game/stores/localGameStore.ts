@@ -25,6 +25,7 @@ export type LocalGameSetup = {
 
 export type LocalGameSession = Readonly<{
   hands: Readonly<Record<string, readonly Card[]>>;
+  drawPile: readonly Card[];
   state: GameState;
 }>;
 
@@ -103,6 +104,7 @@ export function createLocalGameSession(
 
   return {
     hands,
+    drawPile,
     state: {
       players: createLocalPlayers(playerUids, hands),
       currentTurnUid: playerUids[0],

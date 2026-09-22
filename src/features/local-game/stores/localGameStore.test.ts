@@ -25,6 +25,7 @@ describe("createLocalGameSession", () => {
     });
     expect(session.state.discardTop.color).not.toBe("wild");
     expect(session.state.drawPileCount).toBe(86);
+    expect(session.drawPile).toHaveLength(86);
     expect(session.hands["player-1"]).toHaveLength(7);
     expect(session.hands["player-2"]).toHaveLength(7);
     expect(session.hands["player-3"]).toHaveLength(7);
@@ -64,5 +65,7 @@ describe("createLocalGameSession", () => {
     expect(session.state.discardTop.id).toBe(openingColored?.id);
     expect(session.state.discardTop.color).not.toBe("wild");
     expect(session.state.drawPileCount).toBe(deck.length - 15);
+    expect(session.drawPile).toHaveLength(deck.length - 15);
+    expect(session.drawPile.some((card) => card.id === openingWild?.id)).toBe(true);
   });
 });

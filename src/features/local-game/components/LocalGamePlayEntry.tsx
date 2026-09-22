@@ -42,7 +42,7 @@ export function LocalGamePlayEntry() {
   const setup = useLocalGameStore((state) => state.setup);
   const session = useLocalGameStore((state) => state.session);
   const resetSetup = useLocalGameStore((state) => state.resetSetup);
-  const [isHandVisible, setIsHandVisible] = useState(false);
+  const [revealedPlayerUid, setRevealedPlayerUid] = useState<string | null>(null);
 
   const currentPlayer = useMemo(() => {
     if (!session) {
@@ -56,6 +56,8 @@ export function LocalGamePlayEntry() {
     );
   }, [session]);
   const currentHand = currentPlayer ? session?.hands[currentPlayer.uid] ?? [] : [];
+  const isHandVisible = revealedPlayerUid === currentPlayer?.uid;
+  const handPanelId = currentPlayer ? `${currentPlayer.uid}-hand-panel` : undefined;
 
   useEffect(() => {
     if (!setup || !session) {
@@ -141,25 +143,33 @@ export function LocalGamePlayEntry() {
             他のプレイヤーが見ていないことを確認してから、手札を表示してください。
           </p>
         </div>
-        {isHandVisible ? (
-          <ul className="flex flex-wrap gap-2" aria-label={`${currentPlayer.displayName}の手札`}>
-            {currentHand.map((card) => (
-              <li
-                key={card.id}
-                className="rounded-full border border-zinc-300 px-3 py-1 text-sm dark:border-zinc-700"
-              >
-                {formatCardLabel(card)}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="rounded-lg bg-zinc-100 p-4 text-sm text-zinc-700 dark:bg-zinc-900 dark:text-zinc-200">
-            {currentPlayer.displayName}の手札は非表示です。
-          </p>
-        )}
+        <div id={handPanelId}>
+          {isHandVisible ? (
+            <ul className="flex flex-wrap gap-2" aria-label={`${currentPlayer.displayName}の手札`}>
+              {currentHand.map((card) => (
+                <li
+                  key={card.id}
+                  className="rounded-full border border-zinc-300 px-3 py-1 text-sm dark:border-zinc-700"
+                >
+                  {formatCardLabel(card)}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="rounded-lg bg-zinc-100 p-4 text-sm text-zinc-700 dark:bg-zinc-900 dark:text-zinc-200">
+              {currentPlayer.displayName}の手札は非表示です。
+            </p>
+          )}
+        </div>
         <button
           type="button"
-          onClick={() => setIsHandVisible((current) => !current)}
+          onClick={() =>
+            setRevealedPlayerUid((current) =>
+              current === currentPlayer.uid ? null : currentPlayer.uid,
+            )
+          }
+          aria-controls={handPanelId}
+          aria-expanded={isHandVisible}
           className="w-fit rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 dark:bg-zinc-100 dark:text-zinc-900"
         >
           {isHandVisible
