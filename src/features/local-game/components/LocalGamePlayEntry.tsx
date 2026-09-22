@@ -58,8 +58,6 @@ export function LocalGamePlayEntry() {
   const currentHand = currentPlayer ? session?.hands[currentPlayer.uid] ?? [] : [];
 
   useEffect(() => {
-    setIsHandVisible(false);
-
     if (!setup || !session) {
       router.replace("/local");
     }

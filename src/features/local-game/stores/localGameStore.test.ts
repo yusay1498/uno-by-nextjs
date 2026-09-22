@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { createDeck } from "@/game-engine/lib/card";
+import { createDeck } from "../../../game-engine/lib/card";
 import {
   createLocalGameSession,
   defaultLocalGameSetup,

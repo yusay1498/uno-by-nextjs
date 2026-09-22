@@ -4,8 +4,8 @@ import {
   createDeck,
   dealInitialHands,
   shuffleDeck,
-} from "@/game-engine/lib/card";
-import type { Card, GameState, Player } from "@/game-engine/types/game";
+} from "../../../game-engine/lib/card";
+import type { Card, GameState, Player } from "../../../game-engine/types/game";
 import { create } from "zustand";
 
 export const LOCAL_PLAYER_COUNT = {
