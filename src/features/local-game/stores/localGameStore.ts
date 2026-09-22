@@ -1,11 +1,10 @@
 "use client";
 
 import {
-  createDeck,
-  dealInitialHands,
-  shuffleDeck,
-} from "../../../game-engine/lib/card";
-import type { Card, GameState, Player } from "../../../game-engine/types/game";
+  createInitialGameSession,
+  type InitialGameSession,
+  type SessionPlayerSeed,
+} from "../../../game-engine/lib/session";
 import { create } from "zustand";
 
 export const LOCAL_PLAYER_COUNT = {
@@ -23,11 +22,7 @@ export type LocalGameSetup = {
   readonly houseRules: LocalHouseRules;
 };
 
-export type LocalGameSession = Readonly<{
-  hands: Readonly<Record<string, readonly Card[]>>;
-  drawPile: readonly Card[];
-  state: GameState;
-}>;
+export type LocalGameSession = InitialGameSession;
 
 type LocalGameState = {
   readonly setup: LocalGameSetup | null;
@@ -36,10 +31,7 @@ type LocalGameState = {
   resetSetup: () => void;
 };
 
-type CreateLocalGameSessionOptions = Readonly<{
-  deck?: readonly Card[];
-  random?: () => number;
-}>;
+type CreateLocalGameSessionOptions = Parameters<typeof createInitialGameSession>[2];
 
 export const defaultLocalGameSetup: LocalGameSetup = {
   playerCount: 4,
@@ -60,34 +52,14 @@ const normalizePlayerCount = (playerCount: number) =>
 const createLocalPlayerUids = (playerCount: number) =>
   Array.from({ length: playerCount }, (_, index) => `player-${index + 1}`);
 
-const createLocalPlayers = (
+const createLocalPlayerSeeds = (
   playerUids: readonly string[],
-  hands: Readonly<Record<string, readonly Card[]>>,
-): readonly Player[] =>
+): readonly SessionPlayerSeed[] =>
   playerUids.map((uid, index) => ({
     uid,
     displayName: `プレイヤー ${index + 1}`,
     seatIndex: index,
-    handCount: hands[uid]?.length ?? 0,
-    hasCalledUno: false,
-    isConnected: true,
   }));
-
-const selectOpeningDiscard = (remainingDeck: readonly Card[]) => {
-  const discardIndex = remainingDeck.findIndex((card) => card.color !== "wild");
-
-  if (discardIndex < 0) {
-    throw new Error("Opening discard card is unavailable.");
-  }
-
-  return {
-    discardTop: remainingDeck[discardIndex],
-    drawPile: [
-      ...remainingDeck.slice(0, discardIndex),
-      ...remainingDeck.slice(discardIndex + 1),
-    ],
-  } as const;
-};
 
 export function createLocalGameSession(
   setup: LocalGameSetup,
@@ -98,24 +70,11 @@ export function createLocalGameSession(
     playerCount: normalizePlayerCount(setup.playerCount),
   };
   const playerUids = createLocalPlayerUids(normalizedSetup.playerCount);
-  const deck = options.deck ?? shuffleDeck(createDeck(), options.random);
-  const { hands, remainingDeck } = dealInitialHands(playerUids, deck);
-  const { discardTop, drawPile } = selectOpeningDiscard(remainingDeck);
-
-  return {
-    hands,
-    drawPile,
-    state: {
-      players: createLocalPlayers(playerUids, hands),
-      currentTurnUid: playerUids[0],
-      direction: 1,
-      discardTop,
-      drawPileCount: drawPile.length,
-      pendingDrawCount: 0,
-      status: "playing",
-      houseRules: normalizedSetup.houseRules,
-    },
-  };
+  return createInitialGameSession(
+    createLocalPlayerSeeds(playerUids),
+    normalizedSetup.houseRules,
+    options,
+  );
 }
 
 export const useLocalGameStore = create<LocalGameState>((set) => ({
