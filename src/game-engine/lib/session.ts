@@ -95,8 +95,8 @@ export function createInitialGameSession(
   houseRules: HouseRules,
   options: CreateInitialGameSessionOptions = {},
 ): InitialGameSession {
-  if (playerSeeds.length === 0) {
-    throw new Error("At least one player is required.");
+  if (playerSeeds.length < 2) {
+    throw new Error("At least two players are required.");
   }
 
   const deck = options.deck ?? shuffleDeck(createDeck(), options.random);

@@ -143,7 +143,7 @@ export function LocalGamePlayEntry() {
             他のプレイヤーが見ていないことを確認してから、手札を表示してください。
           </p>
         </div>
-        <div id={handPanelId}>
+        <div id={handPanelId} aria-live="polite">
           {isHandVisible ? (
             <ul className="flex flex-wrap gap-2" aria-label={`${currentPlayer.displayName}の手札`}>
               {currentHand.map((card) => (

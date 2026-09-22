@@ -49,6 +49,11 @@ const normalizePlayerCount = (playerCount: number) =>
       )
     : defaultLocalGameSetup.playerCount;
 
+const normalizeLocalGameSetup = (setup: LocalGameSetup): LocalGameSetup => ({
+  ...setup,
+  playerCount: normalizePlayerCount(setup.playerCount),
+});
+
 const createLocalPlayerUids = (playerCount: number) =>
   Array.from({ length: playerCount }, (_, index) => `player-${index + 1}`);
 
@@ -65,10 +70,7 @@ export function createLocalGameSession(
   setup: LocalGameSetup,
   options: CreateLocalGameSessionOptions = {},
 ): LocalGameSession {
-  const normalizedSetup: LocalGameSetup = {
-    ...setup,
-    playerCount: normalizePlayerCount(setup.playerCount),
-  };
+  const normalizedSetup = normalizeLocalGameSetup(setup);
   const playerUids = createLocalPlayerUids(normalizedSetup.playerCount);
   return createInitialGameSession(
     createLocalPlayerSeeds(playerUids),
@@ -81,10 +83,7 @@ export const useLocalGameStore = create<LocalGameState>((set) => ({
   setup: null,
   session: null,
   initializeSetup: (setup) => {
-    const normalizedSetup: LocalGameSetup = {
-      ...setup,
-      playerCount: normalizePlayerCount(setup.playerCount),
-    };
+    const normalizedSetup = normalizeLocalGameSetup(setup);
 
     set({
       setup: normalizedSetup,

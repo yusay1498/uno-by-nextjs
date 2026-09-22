@@ -39,9 +39,6 @@ describe("createInitialGameSession", () => {
 
     expect(session.state.status).toBe("playing");
     expect(session.state.players).toHaveLength(3);
-    expect(session.state.currentTurnUid).toBe("player-1");
-    expect(session.state.direction).toBe(1);
-    expect(session.state.pendingDrawCount).toBe(0);
     expect(session.state.discardTop.color).not.toBe("wild");
     expect(session.state.drawPileCount).toBe(86);
     expect(session.drawPile).toHaveLength(86);
@@ -80,25 +77,48 @@ describe("createInitialGameSession", () => {
     expect(session.drawPile.some((card) => card.id === openingWild?.id)).toBe(true);
   });
 
-  test("開始時の場札が skip の場合は次のプレイヤーから開始する", () => {
-    const session = createInitialGameSession(playerSeeds, defaultHouseRules, {
-      deck: createDeckWithOpeningDiscard("red-skip-0"),
-    });
+  test.each([
+    {
+      cardId: "red-1-0",
+      expectedTurnUid: "player-1",
+      expectedDirection: 1,
+      expectedPendingDrawCount: 0,
+    },
+    {
+      cardId: "red-skip-0",
+      expectedTurnUid: "player-2",
+      expectedDirection: 1,
+      expectedPendingDrawCount: 0,
+    },
+    {
+      cardId: "red-reverse-0",
+      expectedTurnUid: "player-3",
+      expectedDirection: -1,
+      expectedPendingDrawCount: 0,
+    },
+    {
+      cardId: "red-drawTwo-0",
+      expectedTurnUid: "player-2",
+      expectedDirection: 1,
+      expectedPendingDrawCount: 2,
+    },
+  ])(
+    "開始時の場札が $cardId の場合は想定どおりに初期手番と状態を決める",
+    ({
+      cardId,
+      expectedTurnUid,
+      expectedDirection,
+      expectedPendingDrawCount,
+    }) => {
+      const session = createInitialGameSession(playerSeeds, defaultHouseRules, {
+        deck: createDeckWithOpeningDiscard(cardId),
+      });
 
-    expect(session.state.currentTurnUid).toBe("player-2");
-    expect(session.state.direction).toBe(1);
-    expect(session.state.pendingDrawCount).toBe(0);
-  });
-
-  test("開始時の場札が reverse の場合は進行方向を反転して前のプレイヤーから開始する", () => {
-    const session = createInitialGameSession(playerSeeds, defaultHouseRules, {
-      deck: createDeckWithOpeningDiscard("red-reverse-0"),
-    });
-
-    expect(session.state.currentTurnUid).toBe("player-3");
-    expect(session.state.direction).toBe(-1);
-    expect(session.state.pendingDrawCount).toBe(0);
-  });
+      expect(session.state.currentTurnUid).toBe(expectedTurnUid);
+      expect(session.state.direction).toBe(expectedDirection);
+      expect(session.state.pendingDrawCount).toBe(expectedPendingDrawCount);
+    },
+  );
 
   test("2人対戦で開始時の場札が reverse の場合はスキップ相当で最初のプレイヤーが続けて手番になる", () => {
     const session = createInitialGameSession(twoPlayerSeeds, defaultHouseRules, {
@@ -108,16 +128,6 @@ describe("createInitialGameSession", () => {
     expect(session.state.currentTurnUid).toBe("player-1");
     expect(session.state.direction).toBe(-1);
     expect(session.state.pendingDrawCount).toBe(0);
-  });
-
-  test("開始時の場札が drawTwo の場合は次のプレイヤーへペナルティを適用する", () => {
-    const session = createInitialGameSession(playerSeeds, defaultHouseRules, {
-      deck: createDeckWithOpeningDiscard("red-drawTwo-0"),
-    });
-
-    expect(session.state.currentTurnUid).toBe("player-2");
-    expect(session.state.direction).toBe(1);
-    expect(session.state.pendingDrawCount).toBe(2);
   });
 
   test("開始時の場札に色付きカードがない場合は例外を投げる", () => {
@@ -140,6 +150,12 @@ describe("createInitialGameSession", () => {
   test("プレイヤーが 0 人の場合は例外を投げる", () => {
     expect(() =>
       createInitialGameSession([], defaultHouseRules),
-    ).toThrow("At least one player is required.");
+    ).toThrow("At least two players are required.");
+  });
+
+  test("プレイヤーが 1 人の場合は例外を投げる", () => {
+    expect(() =>
+      createInitialGameSession(twoPlayerSeeds.slice(0, 1), defaultHouseRules),
+    ).toThrow("At least two players are required.");
   });
 });
