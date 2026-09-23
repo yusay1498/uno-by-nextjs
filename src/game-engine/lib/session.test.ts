@@ -37,7 +37,7 @@ describe("createInitialGameSession", () => {
       deck: createDeckWithOpeningDiscard("red-1-0"),
     });
 
-    expect(session.state.status).toBe("playing");
+    expect(session.state.status).toBe("waiting");
     expect(session.state.players).toHaveLength(3);
     expect(session.state.discardTop.color).not.toBe("wild");
     expect(session.state.drawPileCount).toBe(86);

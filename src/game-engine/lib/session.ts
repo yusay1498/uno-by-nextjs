@@ -113,7 +113,7 @@ export function createInitialGameSession(
       players,
       discardTop,
       drawPileCount: drawPile.length,
-      status: "playing",
+      status: "waiting",
       houseRules,
       ...openingTurnState,
     },
